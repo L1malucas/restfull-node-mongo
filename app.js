@@ -1,9 +1,7 @@
 // importações das dependências externas
 const express = require("express");
 const mongoose = require("mongoose");
-
-// importação das configs do banco
-const Person = require("./models/Person");
+require("dotenv").config();
 
 // variaveis basicas e universais
 const app = express();
@@ -22,8 +20,8 @@ app.get("/", (_req, res) => {
 });
 
 // config mongoose
-const MONGO_USER = "lucas";
-const MONGO_PASS = "privacidade";
+const MONGO_USER = process.env.MONGO_USER;
+const MONGO_PASS = process.env.MONGO_PASS;
 mongoose
   .connect(
     `mongodb+srv://${MONGO_USER}:${MONGO_PASS}@restfull-node-mongo.vqw1iin.mongodb.net/?retryWrites=true&w=majority`
@@ -42,27 +40,6 @@ mongoose
 app.use(express.json());
 
 // ROTAS DA API REST
+const personRoutes = require("./routes/personRoutes");
 
-// POST
-app.post("/person", async (req, res) => {
-  //desestruturação
-  const { name, salary, approved } = req.body;
-
-  // cria objeto q sera enviado para o mongo
-  const pessoa = {
-    name,
-    salary,
-    approved,
-  };
-
-  // cria dados apenas passando o objeto json pessoa
-  try {
-    await Person.create(pessoa);
-    res.status(201).json({ message: `${pessoa.name} criada com sucesso` });
-  } catch (error) {
-    res.status(500).json({ erro: error });
-  }
-});
-
-// GET USERNAME
-app.get("/person/:name", (_req, res) => {});
+app.use("/person", personRoutes);
